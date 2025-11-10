@@ -19,3 +19,46 @@ h2{margin:0 0 8px 0;font-size:20px}
 .hidden{display:none}
 code{background:#f3f4f6;padding:1px 6px;border-radius:6px}
 .footnote{color:var(--muted);font-size:14px}
+/* Ask AI styles */
+.ask-ai-btn{
+  position: fixed; right: 16px; bottom: 16px;
+  padding: 10px 14px; border-radius: 9999px;
+  background:#111; color:#fff; border:1px solid #111; cursor:pointer;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  z-index: 2000;
+}
+.ask-ai-btn:hover{ filter: brightness(1.05); }
+
+.ask-ai-modal.hidden{ display:none; }
+.ask-ai-modal{
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3000;
+}
+.ask-ai-dialog{
+  width: min(720px, 92vw);
+  background: #fff; border-radius: 12px; border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+.ask-ai-header{
+  display:flex; align-items:center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #e5e7eb; background:#f9fafb;
+}
+.ask-ai-close{
+  background:transparent; border:none; font-size: 20px; cursor:pointer; line-height:1;
+}
+.ask-ai-body{ padding: 12px 14px; }
+#ask-ai-input{
+  width: 100%; min-height: 110px;
+  border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font: inherit;
+}
+.ask-ai-actions{
+  display:flex; align-items:center; gap:.75rem; margin-top:.5rem;
+}
+#ask-ai-send{
+  padding:.55rem .9rem; border-radius:8px; background:#111; color:#fff; border:1px solid #111; cursor:pointer;
+}
+.ask-ai-status{ color:#374151; font-weight:600; min-height: 1.2rem; }
+.ask-ai-answer{
+  margin-top:.75rem; padding:.75rem; background:#f9fafb; border:1px dashed #cbd5e1; border-radius:8px;
+}
