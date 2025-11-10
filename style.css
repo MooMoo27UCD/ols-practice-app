@@ -62,3 +62,10 @@ code{background:#f3f4f6;padding:1px 6px;border-radius:6px}
 .ask-ai-answer{
   margin-top:.75rem; padding:.75rem; background:#f9fafb; border:1px dashed #cbd5e1; border-radius:8px;
 }
+/* OLS case intro tweaks */
+#ols-case-intro h2 { margin-bottom: 0.25rem; }
+#ols-case-intro h3 { margin-top: 0.75rem; }
+#ols-case-intro .case-rule {
+  border: 0; border-top: 2px solid #e5e7eb; margin: 0.5rem 0 1rem;
+}
+#ols-case-intro ul { margin-left: 1.25rem; }
