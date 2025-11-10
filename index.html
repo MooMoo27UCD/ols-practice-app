@@ -1,4 +1,4 @@
-<!doctype html>
+  <!doctype html>
 <html lang="en">
 
 <head>
@@ -36,6 +36,31 @@
 <button id="ask-ai-open" class="ask-ai-btn" aria-label="Ask AI">Ask&nbsp;AI</button>
 
   <main class="container">
+   <section id="ols-case-intro" class="card">
+      <h2>Case: Solar Panel Subsidy Program (100 points total)</h2>
+      <hr class="case-rule" />
+      <h3>Background</h3>
+      <p>
+        To promote renewable energy, the government launched a <strong>Solar Incentive Program</strong> that
+        provides monetary subsidies to households installing rooftop solar panels.
+      </p>
+      <p>
+        Each <strong>region</strong> determines its own average subsidy amount, depending on local budgets and
+        priorities.
+      </p>
+      <p>
+        An analyst collects data from <strong>50 regions</strong> for one year:
+      </p>
+      <ul>
+        <li><strong>Y<sub>i</sub></strong>: <strong>Percentage of households</strong> that installed solar panels in region <em>i</em> (in percentage points).</li>
+        <li><strong>X<sub>i</sub></strong>: <strong>Average subsidy amount (in hundreds of dollars)</strong> per eligible household in region <em>i</em>.</li>
+      </ul>
+      <p>The proposed model is:</p>
+      <p style="text-align:center;font-size:1.05rem;">
+        \( \mathrm{AdoptionRate}_i \;=\; \beta_0 \;+\; \beta_1 \,\mathrm{SubsidyAmount}_i \;+\; u_i \)
+      </p>
+    </section>
+    
     <!-- Q1 -->
     <section id="q1" class="card">
       <h2>Q1. Understanding the Regression Model (15 pts)</h2>
