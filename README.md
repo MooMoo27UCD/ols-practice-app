@@ -1,4 +1,4 @@
-# OLS Practice – Solar Panel Subsidy Program
+# OLS Practice App
 
 A minimal, self‑contained web app for practicing **simple linear regression (OLS)** concepts for your MBA midterm. It includes six conceptual/computational questions with toggleable solutions.
 
