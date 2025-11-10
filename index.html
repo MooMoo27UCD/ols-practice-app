@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OLS Practice – MBA Data Analysis</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- PASSWORD OVERLAY -->
+  <link rel="stylesheet" href="pw.css" />
+
+  <div id="pw-overlay">
+    <div id="pw-panel">
+      <h2>Enter Password</h2>
+      <input type="password" id="pw-input" placeholder="Password" />
+      <button id="pw-submit">Unlock</button>
+      <p id="pw-msg"></p>
+    </div>
+  </div>
+
+  <script src="password.js"></script>
+  <!-- END PASSWORD OVERLAY -->
+  <header class="container">
+    <h1>Practice Exam — OLS (Simple Linear Regression)</h1>
+    <p class="subtitle">Solar Panel Subsidy Program — conceptual & basic computation</p>
+    <div class="controls">
+      <button id="show-all" class="btn">Show All Solutions</button>
+      <button id="hide-all" class="btn btn-secondary">Hide All Solutions</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Q1 -->
+    <section id="q1" class="card">
+      <h2>Q1. Understanding the Regression Model (15 pts)</h2>
+      <div class="prompt">
+        <p>Model: <code>AdoptionRate = β₀ + β₁ × SubsidyAmount + u</code></p>
+        <ul>
+          <li><strong>Y (AdoptionRate):</strong> percentage of households adopting solar in a region (percentage points)
+          </li>
+          <li><strong>X (SubsidyAmount):</strong> average per-household subsidy in a region, measured in $100 units</li>
+        </ul>
+        <ol>
+          <li>Explain in plain language what the model captures.</li>
+          <li>Identify dependent and independent variables, and how they are measured.</li>
+          <li>What does the error term <em>u</em> represent? Give two examples.</li>
+          <li>Interpret β₀ and β₁ in context.</li>
+          <li>What sign do you expect for β₁? Why?</li>
+          <li>Does a positive slope imply causality? Briefly explain.</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q1-soln">Show solution</button>
+      <div id="q1-soln" class="solution hidden">
+        <ul>
+          <li><strong>What it captures:</strong> Average change in solar adoption as subsidies vary across regions,
+            holding other factors in expectation.</li>
+          <li><strong>Variables:</strong> Y = adoption rate (% points). X = subsidy in $100 units.</li>
+          <li><strong>Error term u:</strong> omitted drivers (e.g., sunlight/irradiance, electricity prices, income,
+            environmental attitudes, installer capacity, permitting frictions, marketing).</li>
+          <li><strong>β₀:</strong> baseline adoption when subsidy = 0. <strong>β₁:</strong> change in expected adoption
+            (pp) per additional $100 subsidy.</li>
+          <li><strong>Sign:</strong> β₁ &gt; 0 expected (higher subsidies → higher adoption on average).</li>
+          <li><strong>Association vs. causation:</strong> Positive slope ≠ causal; regions favoring solar may also fund
+            higher subsidies.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Q2 -->
+    <section id="q2" class="card">
+      <h2>Q2. Interpreting Estimated Coefficients (20 pts)</h2>
+      <div class="prompt">
+        <p>Estimated equation: <code>AdoptionRate = 5.2 + 0.8 × SubsidyAmount</code></p>
+        <ol>
+          <li>Interpret the slope 0.8.</li>
+          <li>What is the expected change if the average subsidy increases by $300?</li>
+          <li>Interpret the intercept 5.2. Is it meaningful here?</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q2-soln">Show solution</button>
+      <div id="q2-soln" class="solution hidden">
+        <ul>
+          <li><strong>Slope:</strong> Each additional $100 subsidy is associated with +0.8 percentage points in
+            adoption.</li>
+          <li><strong>$300 change:</strong> $300 = 3 × $100 ⇒ predicted change = 3 × 0.8 = <strong>+2.4 pp</strong>.
+          </li>
+          <li><strong>Intercept:</strong> Predicted adoption at subsidy = $0 (5.2 pp). Meaningful if zero-subsidy
+            regions exist; otherwise an extrapolation to treat cautiously.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Q3 -->
+    <section id="q3" class="card">
+      <h2>Q3. Assessing Model Fit (15 pts)</h2>
+      <div class="prompt">
+        <p>Reported R² = 0.45.</p>
+        <ol>
+          <li>Explain what R² = 0.45 means here.</li>
+          <li>Is this a “good” fit? How should a manager interpret it?</li>
+          <li>Can a model with modest R² still be useful? Why?</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q3-soln">Show solution</button>
+      <div id="q3-soln" class="solution hidden">
+        <ul>
+          <li><strong>Meaning:</strong> 45% of cross-regional variation in adoption is explained by subsidy differences
+            within this linear model.</li>
+          <li><strong>Goodness:</strong> Moderate. Many other drivers matter (sunlight, income, installer capacity,
+            permitting).</li>
+          <li><strong>Usefulness:</strong> Yes—precisely estimated marginal effects can guide policy even when R² is
+            modest.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Q4 -->
+    <section id="q4" class="card">
+      <h2>Q4. Inference & Confidence Intervals (15 pts)</h2>
+      <div class="prompt">
+        <p>Given SE(β₁) = 0.3. Work at 95% confidence.</p>
+        <ol>
+          <li>Write the 95% CI formula for β₁.</li>
+          <li>Without computing, describe what the interval means for policymakers.</li>
+          <li>If the interval includes 0, what does that imply?</li>
+          <li>If it excludes 0, what can we conclude about effectiveness?</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q4-soln">Show solution</button>
+      <div id="q4-soln" class="solution hidden">
+        <ul>
+          <li><strong>Formula:</strong> β̂₁ ± 1.96 × SE(β̂₁).</li>
+          <li><strong>Meaning:</strong> A plausible range for the true change in adoption (pp) per +$100 subsidy.</li>
+          <li><strong>Includes 0:</strong> Insufficient evidence at 5% to claim a non-zero effect.</li>
+          <li><strong>Excludes 0:</strong> Statistically significant evidence that subsidies affect adoption.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Q5 -->
+    <section id="q5" class="card">
+      <h2>Q5. Hypothesis Testing & Decision-Making (20 pts)</h2>
+      <div class="prompt">
+        <p>Test H₀: β₁ = 0 vs. H₁: β₁ ≠ 0. Suppose p-value = 0.02.</p>
+        <ol>
+          <li>State the hypotheses in plain English.</li>
+          <li>Interpret p = 0.02.</li>
+          <li>Decision at α = 0.05.</li>
+          <li>Define Type I and Type II errors for policymakers.</li>
+          <li>Which error may be costlier here? Briefly justify.</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q5-soln">Show solution</button>
+      <div id="q5-soln" class="solution hidden">
+        <ul>
+          <li><strong>H₀/H₁:</strong> H₀: subsidies have no linear effect. H₁: subsidies do affect adoption (increase or
+            decrease).</li>
+          <li><strong>p = 0.02:</strong> If the true effect were 0, seeing a slope at least this large would occur ≈2%
+            of the time.</li>
+          <li><strong>Decision:</strong> Reject H₀ at 5% (0.02 &lt; 0.05).</li>
+          <li><strong>Errors:</strong> Type I—conclude subsidies help when they don’t (waste funds). Type II—miss a real
+            positive effect (lost decarbonization).</li>
+          <li><strong>Costlier error:</strong> context-dependent: tight budgets → Type I; urgent climate targets → Type
+            II.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Q6 -->
+    <section id="q6" class="card">
+      <h2>Q6. Managerial & Policy Interpretation (15 pts)</h2>
+      <div class="prompt">
+        <p>Magnitude: β̂₁ = 0.8 pp per +$100 subsidy.</p>
+        <ol>
+          <li>Interpret this finding in plain language.</li>
+          <li>Discuss whether the effect is economically meaningful given costs.</li>
+          <li>How to weigh statistical vs practical significance?</li>
+          <li>Write a 3–4 sentence executive summary advising the program direction.</li>
+        </ol>
+      </div>
+      <button class="btn linklike" data-target="q6-soln">Show solution</button>
+      <div id="q6-soln" class="solution hidden">
+        <ul>
+          <li><strong>Interpretation:</strong> +$100 average subsidy → ≈ +0.8 pp higher adoption.</li>
+          <li><strong>Economic meaning:</strong> Compare cost per additional adopter with long-run benefits (emissions,
+            resilience, bill savings).</li>
+          <li><strong>Stat vs econ significance:</strong> Reliable ≠ important; assess magnitude vs goals and budget.
+          </li>
+          <li><strong>Executive summary (sample):</strong> Estimated relationship is positive and statistically
+            significant. Effect size is moderate. Recommend maintaining the program and targeting increases where latent
+            demand is high, while addressing non-price barriers (permitting, installer availability) to improve
+            cost‑effectiveness. Continue monitoring outcomes to refine allocations.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="container footnote">
+      <p>Built for quick practice. Toggle solutions to self‑test first.</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
