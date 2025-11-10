@@ -32,9 +32,8 @@
     </div>
   </header>
   <!-- Ask AI global button -->
-<button id="ask-ai-open" style="position:fixed;right:16px;bottom:16px;z-index:9999;">
-  Ask AI
-</button>
+<!-- Ask AI floating button -->
+<button id="ask-ai-open" class="ask-ai-btn" aria-label="Ask AI">Ask&nbsp;AI</button>
 
   <main class="container">
     <!-- Q1 -->
@@ -207,17 +206,21 @@
   </main>
 
   <script src="app.js"></script>
-  <!-- Ask AI Modal -->
-<div id="ask-ai-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;">
-  <div style="background:#fff;max-width:640px;width:92%;padding:16px;border-radius:10px;border:1px solid #e5e7eb;">
-    <h3 style="margin:0 0 8px 0;">Ask AI (OLS / Midterm Help)</h3>
-    <textarea id="ask-ai-input" placeholder="Paste a question or select text on the page and paste it here..." style="width:100%;min-height:120px;padding:8px;border:1px solid #d1d5db;border-radius:8px;"></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
-      <button id="ask-ai-send">Submit</button>
-      <button id="ask-ai-close" style="background:#6b7280;border-color:#6b7280;">Close</button>
-      <span id="ask-ai-status" style="margin-left:8px;color:#374151;"></span>
+<!-- Ask AI Modal -->
+<div id="ask-ai-modal" class="ask-ai-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ask-ai-title">
+  <div class="ask-ai-dialog">
+    <div class="ask-ai-header">
+      <h3 id="ask-ai-title">Ask AI about this page</h3>
+      <button id="ask-ai-close" class="ask-ai-close" aria-label="Close">×</button>
     </div>
-    <div id="ask-ai-answer" class="answer hidden" style="margin-top:10px;"></div>
+    <div class="ask-ai-body">
+      <textarea id="ask-ai-input" placeholder="Paste a question or select text on the page, then click Ask."></textarea>
+      <div class="ask-ai-actions">
+        <button id="ask-ai-send">Ask</button>
+        <span id="ask-ai-status" class="ask-ai-status"></span>
+      </div>
+      <div id="ask-ai-answer" class="ask-ai-answer hidden"></div>
+    </div>
   </div>
 </div>
 </body>
