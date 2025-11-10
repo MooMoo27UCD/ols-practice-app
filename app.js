@@ -104,3 +104,46 @@ function attachAskAI() {
 }
 
 document.addEventListener('DOMContentLoaded', attachAskAI);
+// --- Debug markers ---
+console.log('app.js loaded');
+window.addEventListener('error', e => console.error('JS error:', e.message));
+
+// === Ask AI wiring ===
+function attachAskAI() {
+  const btn = document.getElementById('ask-ai-btn');
+  if (!btn) {
+    console.warn('Ask AI button not found');
+    return;
+  }
+  console.log('Ask AI button found; attaching click handler');
+
+  btn.addEventListener('click', async () => {
+    try {
+      const selection = (window.getSelection()?.toString() || '').trim();
+      const q = prompt('Ask AI a question.\n(Selected text will be sent as context if any):', '');
+      if (q === null) return; // user cancelled
+
+      const resp = await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, selection })
+      });
+
+      if (!resp.ok) {
+        const t = await resp.text();
+        alert('AI error: ' + t);
+        return;
+      }
+
+      const data = await resp.json();
+      alert(data.answer || 'No answer.');
+    } catch (e) {
+      alert('Network/JS error: ' + e.message);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  attachAskAI();
+  console.log('DOMContentLoaded complete');
+});
