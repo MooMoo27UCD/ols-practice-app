@@ -1,149 +1,134 @@
-function toggle(id){ const el=document.getElementById(id); if(el) el.classList.toggle('hidden'); }
-function showAll(){ document.querySelectorAll('.solution').forEach(n=>n.classList.remove('hidden')); }
-function hideAll(){ document.querySelectorAll('.solution').forEach(n=>n.classList.add('hidden')); }
-function wireToggles(){
-  document.querySelectorAll('button[data-target]').forEach(btn=>{
-    const id = btn.getAttribute('data-target');
-    btn.addEventListener('click', ()=> toggle(id));
-  });
-  const sa=document.getElementById('show-all'); if(sa) sa.addEventListener('click', showAll);
-  const ha=document.getElementById('hide-all'); if(ha) ha.addEventListener('click', hideAll);
+// ========== Utility + Core Toggles ==========
+function toggle(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('hidden');
 }
-document.addEventListener('DOMContentLoaded', wireToggles);
-// === Ask AI wiring (global button + modal) ===
-(function(){
-  function $(id){ return document.getElementById(id); }
 
-  const openBtn = $('ask-ai-open');
-  const modal = $('ask-ai-modal');
-  const input = $('ask-ai-input');
-  const sendBtn = $('ask-ai-send');
-  const closeBtn = $('ask-ai-close');
-  const status = $('ask-ai-status');
-  const out = $('ask-ai-answer');
+function showAll() {
+  document.querySelectorAll('.solution').forEach(n => n.classList.remove('hidden'));
+}
 
+function hideAll() {
+  document.querySelectorAll('.solution').forEach(n => n.classList.add('hidden'));
+}
+
+function wireToggles() {
+  // Per-question toggles
+  document.querySelectorAll('button[data-target]').forEach(btn => {
+    const id = btn.getAttribute('data-target');
+    btn.addEventListener('click', () => toggle(id));
+  });
+  // Global show/hide all
+  const sa = document.getElementById('show-all');
+  if (sa) sa.addEventListener('click', showAll);
+  const ha = document.getElementById('hide-all');
+  if (ha) ha.addEventListener('click', hideAll);
+}
+
+// ========== Ask AI Modal Wiring ==========
+function wireAskAI() {
+  const openBtn  = document.getElementById('ask-ai-btn');
+  const modal    = document.getElementById('ask-ai-modal');
+  const closeBtn = document.getElementById('ask-ai-close');
+  const input    = document.getElementById('ask-ai-input');
+  const sendBtn  = document.getElementById('ask-ai-send');
+  const statusEl = document.getElementById('ask-ai-status');
+  const answerEl = document.getElementById('ask-ai-answer');
+
+  // If the Ask-AI UI isn't present on this page, bail silently.
   if (!openBtn || !modal) return;
 
-  openBtn.addEventListener('click', () => {
-    // Pre-fill with currently selected text, if any
-    input.value = window.getSelection()?.toString() || '';
-    out.classList.add('hidden');
-    out.innerHTML = '';
-    status.textContent = '';
+  function openModal() {
+    // Prefill with selected text (if any)
+    try { input && (input.value = (window.getSelection()?.toString() || '').trim()); } catch {}
+    if (statusEl) statusEl.textContent = '';
+    if (answerEl) {
+      answerEl.textContent = '';
+      answerEl.classList.add('hidden');
+    }
     modal.classList.remove('hidden');
-  });
+    input && input.focus();
+  }
 
-  closeBtn.addEventListener('click', () => {
+  function closeModal() {
     modal.classList.add('hidden');
-  });
+  }
 
-  sendBtn.addEventListener('click', async () => {
-    const prompt = (input.value || '').trim();
+  async function askAI() {
+    const typed = (input?.value || '').trim();
+    const selected = (window.getSelection?.().toString() || '').trim();
+    const prompt = typed || selected;
+
     if (!prompt) {
-      status.textContent = 'Please type or paste a question.';
-      status.style.color = '#b91c1c';
+      if (statusEl) {
+        statusEl.textContent = 'Please type a question (or select text on the page).';
+      }
       return;
     }
-    status.textContent = 'Thinking…';
-    status.style.color = '#374151';
-    out.classList.add('hidden');
-    out.innerHTML = '';
+
+    if (sendBtn) sendBtn.disabled = true;
+    if (statusEl) statusEl.textContent = 'Thinking…';
+    if (answerEl) {
+      answerEl.textContent = '';
+      answerEl.classList.add('hidden');
+    }
 
     try {
       const resp = await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
+        headers: { 'Content-Type': 'application/json' },
+        // Backend expects { prompt }
         body: JSON.stringify({ prompt })
       });
-      if (!resp.ok) {
-        const err = await resp.text();
-        status.textContent = 'Error: ' + err;
-        status.style.color = '#b91c1c';
-        return;
-      }
-      const data = await resp.json();
-      out.innerHTML = `<h4>Answer</h4><div>${(data.answer || '').replace(/\n/g,'<br>')}</div>`;
-      out.classList.remove('hidden');
-      status.textContent = '✓ Ready';
-      status.style.color = '#065f46';
-    } catch (e) {
-      status.textContent = 'Network error. Try again.';
-      status.style.color = '#b91c1c';
-    }
-  });
-})();
-// === Ask AI wiring ===
-function attachAskAI() {
-  const btn = document.getElementById('ask-ai-btn');
-  if (!btn) return;
 
-  btn.addEventListener('click', async () => {
-    try {
-      const selection = (window.getSelection()?.toString() || '').trim();
-      const q = prompt('Ask AI a question.\n(Selected text will be sent as context if any):', '');
-      if (q === null) return; // user cancelled
-
-      const resp = await fetch('/api/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, selection })
-      });
-
-      if (!resp.ok) {
-        const t = await resp.text();
-        alert('AI error: ' + t);
-        return;
+      let data;
+      try { data = await resp.json(); } catch {
+        // If backend returns text/plain in error, fall back to text
+        const txt = await resp.text();
+        throw new Error(txt || 'Invalid server response');
       }
 
-      const data = await resp.json();
-      alert(data.answer || 'No answer.');
-    } catch (e) {
-      alert('Network/JS error: ' + e.message);
+      if (!resp.ok) {
+        throw new Error(data?.error || data?.detail || resp.statusText || 'Request failed');
+      }
+
+      const txt = (data?.answer || '').trim();
+      if (answerEl) {
+        // Use textContent to avoid injecting HTML; preserve line breaks visually with CSS if needed
+        answerEl.textContent = txt || '(no answer)';
+        answerEl.classList.remove('hidden');
+      }
+      if (statusEl) statusEl.textContent = '';
+    } catch (err) {
+      if (statusEl) statusEl.textContent = 'Error: ' + (err?.message || err);
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
     }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', attachAskAI);
-// --- Debug markers ---
-console.log('app.js loaded');
-window.addEventListener('error', e => console.error('JS error:', e.message));
-
-// === Ask AI wiring ===
-function attachAskAI() {
-  const btn = document.getElementById('ask-ai-btn');
-  if (!btn) {
-    console.warn('Ask AI button not found');
-    return;
   }
-  console.log('Ask AI button found; attaching click handler');
 
-  btn.addEventListener('click', async () => {
-    try {
-      const selection = (window.getSelection()?.toString() || '').trim();
-      const q = prompt('Ask AI a question.\n(Selected text will be sent as context if any):', '');
-      if (q === null) return; // user cancelled
+  // Open / Close bindings
+  openBtn.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal(); // click backdrop to close
+  });
+  window.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('hidden') && e.key === 'Escape') closeModal();
+  });
 
-      const resp = await fetch('/api/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, selection })
-      });
-
-      if (!resp.ok) {
-        const t = await resp.text();
-        alert('AI error: ' + t);
-        return;
-      }
-
-      const data = await resp.json();
-      alert(data.answer || 'No answer.');
-    } catch (e) {
-      alert('Network/JS error: ' + e.message);
+  // Submit
+  sendBtn?.addEventListener('click', askAI);
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      askAI();
     }
   });
 }
 
+// ========== Init ==========
 document.addEventListener('DOMContentLoaded', () => {
-  attachAskAI();
-  console.log('DOMContentLoaded complete');
+  wireToggles();
+  wireAskAI();
+  console.log('app.js initialized');
 });
