@@ -1,55 +1,58 @@
-// api/review.js
-export default async function handler(req, res) {
-  // Allow only POST
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).send('Method Not Allowed');
+// /api/review.js  (Vercel Node.js Serverless Function)
+const OPENAI_API_KEY = process.env.STATS_KEY; // you set this in Vercel
+
+module.exports = async (req, res) => {
+  // Basic CORS preflight (harmless even on same origin)
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
   }
 
-  // Basic CORS for browser hits if needed
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Use POST' });
+  }
+
+  if (!OPENAI_API_KEY) {
+    return res.status(500).json({ error: 'Missing STATS_KEY on Vercel' });
+  }
 
   try {
-    const apiKey = process.env.STATS_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Server missing STATS_KEY' });
-    }
+    const { question = '', selection = '' } = req.body || {};
+    const prompt = [
+      selection ? `Context:\n${selection}\n\n` : '',
+      'Question:\n',
+      question || '(no question provided)'
+    ].join('');
 
-    const { prompt } = req.body || {};
-    if (!prompt || typeof prompt !== 'string') {
-      return res.status(400).json({ error: 'Missing "prompt" in JSON body' });
-    }
-
-    // Call OpenAI Chat Completions (browser-safe via server route)
-    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Chat Completions (stable, simple)
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a statistics TA. Be concise, correct, and show formulas.' },
+          { role: 'system', content: 'You are a helpful TA for an MBA course. Be concise, accurate, and math-friendly.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.2,
-        max_tokens: 600
+        temperature: 0.2
       })
     });
 
-    if (!resp.ok) {
-      const text = await resp.text();
-      return res.status(resp.status).json({ error: `OpenAI error: ${text}` });
+    if (!r.ok) {
+      const text = await r.text();
+      return res.status(500).json({ error: 'OpenAI error', detail: text });
     }
 
-    const data = await resp.json();
-    const answer = data?.choices?.[0]?.message?.content ?? '(No answer)';
+    const data = await r.json();
+    const answer = data.choices?.[0]?.message?.content?.trim() || 'No answer.';
+    res.setHeader('Access-Control-Allow-Origin', '*');
     return res.status(200).json({ answer });
-
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Unexpected server error' });
+    return res.status(500).json({ error: 'Server error', detail: String(err) });
   }
-}
+};
